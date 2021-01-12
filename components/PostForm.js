@@ -3,11 +3,11 @@ import React, {
 } from 'react';
 import { Form, Input } from 'formik-antd';
 import { useDispatch, useSelector } from 'react-redux';
-import { ErrorMessage, Formik } from 'formik';
-import {Button, message, Space, Tag} from 'antd';
+import { Formik } from 'formik';
+import { Button, message } from 'antd';
 import * as Yup from 'yup';
-import { ADD_POST_REQUEST } from '../reducers/post';
-import {UploadOutlined} from "@ant-design/icons";
+import { UploadOutlined } from '@ant-design/icons';
+import { ADD_POST_REQUEST, REMOVE_IMAGE, UPLOAD_IMAGES_REQUEST } from '../reducers/post';
 
 const PostSchema = Yup.object().shape({
   content: Yup.string()
@@ -17,30 +17,65 @@ const PostSchema = Yup.object().shape({
 
 const PostForm = () => {
   const [action, setAction] = useState(null);
-  const { imagePaths, addPostLoading, addPostDone } = useSelector((state) => state.post);
+  const {
+    imagePaths,
+    addPostLoading,
+    addPostDone,
+    addPostError,
+  } = useSelector((state) => state.post);
   const dispatch = useDispatch();
-  const imageInput = useRef();
 
   useEffect(() => {
-    if (addPostDone && action) {
+    if (action) {
+      if (addPostDone) {
+        message.success('게시글이 등록되었습니다.').then();
+      }
+      if (addPostError) {
+        message.error(JSON.stringify(addPostError, null, 4)).then();
+      }
       action.setSubmitting(false);
       action.resetForm();
+      setAction(null);
     }
-  }, [addPostDone]);
+  }, [addPostDone, addPostError]);
 
+  const imageInput = useRef();
   const onClickImageUpload = useCallback(() => {
     imageInput.current.click();
   }, [imageInput.current]);
+
+  const onChangeImages = useCallback((e) => {
+    console.log('images', e.target.files);
+    const imageFormData = new FormData();
+    [].forEach.call(e.target.files, (image) => {
+      imageFormData.append('image', image);
+    });
+    dispatch({
+      type: UPLOAD_IMAGES_REQUEST,
+      data: imageFormData,
+    });
+  }, []);
+
+  const onRemoveImage = useCallback((index) => () => {
+    dispatch({
+      type: REMOVE_IMAGE,
+      data: index,
+    });
+  });
 
   return (
     <Formik
       initialValues={{ content: '' }}
       validationSchema={PostSchema}
       onSubmit={(values, { setSubmitting, resetForm }) => {
-        message.info(JSON.stringify(values, null, 4)).then(console.log);
+        const formData = new FormData();
+        imagePaths.forEach((image) => {
+          formData.append('image', image);
+        });
+        formData.append('content', values.content);
         dispatch({
           type: ADD_POST_REQUEST,
-          data: values,
+          data: formData,
         });
         setAction({ setSubmitting, resetForm });
       }}
@@ -49,16 +84,17 @@ const PostForm = () => {
         style={{ marginBottom: '20px' }}
         encType="multipart/form-data"
       >
-        <Input.TextArea
-          id="content"
-          name="content"
-          maxLength={140}
-          autoSize={{ minRows: 3, maxRows: 5 }}
-          placeholder="어떤 신기한 일이 있었나요?"
-        />
-        <ErrorMessage component={Tag} name="content" />
+        <Form.Item name="content">
+          <Input.TextArea
+            id="content"
+            name="content"
+            maxLength={140}
+            autoSize={{ minRows: 3, maxRows: 5 }}
+            placeholder="어떤 신기한 일이 있었나요?"
+          />
+        </Form.Item>
         <div>
-          <input type="file" multiple hidden ref={imageInput} />
+          <input type="file" name="image" multiple hidden ref={imageInput} onChange={onChangeImages} />
         </div>
         <div style={{ marginTop: '5px', overflow: 'hidden' }}>
           <Button
@@ -77,11 +113,11 @@ const PostForm = () => {
           </Button>
         </div>
         <div>
-          {imagePaths.map((v) => (
+          {imagePaths.map((v, i) => (
             <div key={v} style={{ display: 'inline-block' }}>
-              <img src={v} alt={v} style={{ width: '200px' }} />
+              <img src={`http://localhost:3065/images/${v}`} alt={v} style={{ width: '200px' }} />
               <div>
-                <Button>제거</Button>
+                <Button onClick={onRemoveImage(i)}>제거</Button>
               </div>
             </div>
           ))}

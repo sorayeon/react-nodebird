@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, message } from 'antd';
 import Link from 'next/link';
 import styled from 'styled-components';
@@ -24,7 +24,18 @@ const LoginFormSchema = Yup.object().shape({
 
 const LoginForm = () => {
   const dispatch = useDispatch();
-  const { loginLoading } = useSelector((state) => state.user);
+  const [action, setAction] = useState(null);
+  const { loginLoading, loginError } = useSelector((state) => state.user);
+
+  useEffect(() => {
+    if (action) {
+      if (loginError) {
+        message.error(JSON.stringify(loginError, null, 4)).then();
+      }
+      action.setSubmitting(false);
+      setAction(null);
+    }
+  }, [loginError]);
 
   return (
     <Formik
@@ -33,14 +44,15 @@ const LoginForm = () => {
         user_password: '',
       }}
       validationSchema={LoginFormSchema}
-      onSubmit={(values, action) => {
-        message.info(JSON.stringify(values, null, 4)).then((r) => console.log(r));
+      onSubmit={(values, { setSubmitting, resetForm }) => {
         dispatch({
           type: LOGIN_REQUEST,
-          values,
+          data: {
+            email: values.user_email,
+            password: values.user_password,
+          },
         });
-        action.setSubmitting(false);
-        action.resetForm();
+        setAction({ setSubmitting, resetForm });
       }}
     >
       <FormWrapper>

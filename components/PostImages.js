@@ -18,7 +18,7 @@ const PostImages = ({ images }) => {
     return (
       <>
         <img
-          src={images[0].src}
+          src={`http://localhost:3065/images/${images[0].src}`}
           alt={images[0].src}
           role="presentation"
           onClick={onZoom}
@@ -30,14 +30,14 @@ const PostImages = ({ images }) => {
     return (
       <>
         <img
-          src={images[0].src}
+          src={`http://localhost:3065/images/${images[0].src}`}
           alt={images[0].src}
           style={{ width: '50%', display: 'inline-block' }}
           role="presentation"
           onClick={onZoom}
         />
         <img
-          src={images[1].src}
+          src={`http://localhost:3065/images/${images[1].src}`}
           alt={images[1].src}
           style={{ width: '50%', display: 'inline-block' }}
           role="presentation"
@@ -50,7 +50,7 @@ const PostImages = ({ images }) => {
   return (
     <>
       <img
-        src={images[0].src}
+        src={`http://localhost:3065/images/${images[0].src}`}
         alt={images[0].src}
         style={{ width: '50%', display: 'inline-block' }}
         role="presentation"
@@ -75,7 +75,10 @@ const PostImages = ({ images }) => {
 };
 
 PostImages.propTypes = {
-  images: PropTypes.arrayOf(PropTypes.object),
+  images: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.number.isRequired,
+    src: PropTypes.string.isRequired,
+  })).isRequired,
 };
 
 export default PostImages;

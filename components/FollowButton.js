@@ -15,7 +15,7 @@ const FollowButton = ({ post }) => {
       dispatch({
         type: UNFOLLOW_REQUEST,
         data: {
-          id: post.User.id,
+          userId: post.User.id,
         },
       });
       setButtonType(['primary', <UserAddOutlined />]);
@@ -23,12 +23,13 @@ const FollowButton = ({ post }) => {
       dispatch({
         type: FOLLOW_REQUEST,
         data: {
-          id: post.User.id,
+          userId: post.User.id,
         },
       });
       setButtonType(['', <UserDeleteOutlined />]);
     }
   }, [isFollowing]);
+
   return (
     <Button
       size="small"
@@ -44,12 +45,24 @@ const FollowButton = ({ post }) => {
 
 FollowButton.propTypes = {
   post: PropTypes.shape({
-    id: PropTypes.string.isRequired,
-    User: PropTypes.object.isRequired,
+    id: PropTypes.number.isRequired,
+    User: PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      nickname: PropTypes.string.isRequired,
+    }),
     content: PropTypes.string.isRequired,
-    createAt: PropTypes.object,
-    Comments: PropTypes.arrayOf(PropTypes.object),
-    Images: PropTypes.arrayOf(PropTypes.object),
+    createdAt: PropTypes.string.isRequired,
+    Comments: PropTypes.arrayOf(PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      content: PropTypes.string.isRequired,
+    })),
+    Images: PropTypes.arrayOf(PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      src: PropTypes.string.isRequired,
+    })),
+    Likers: PropTypes.arrayOf(PropTypes.shape({
+      id: PropTypes.number.isRequired,
+    })),
   }).isRequired,
 };
 export default FollowButton;

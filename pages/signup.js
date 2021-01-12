@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { Checkbox, Form, Input } from 'formik-antd';
 import { useDispatch, useSelector } from 'react-redux';
@@ -7,6 +7,7 @@ import * as Yup from 'yup';
 import { Button, message } from 'antd';
 import styled from 'styled-components';
 import { LockOutlined, MailOutlined, UserOutlined } from '@ant-design/icons';
+import Router from 'next/router';
 import { SIGNUP_REQUEST } from '../reducers/user';
 import AppLayout from '../components/AppLayout';
 
@@ -32,7 +33,28 @@ const FormWrapper = styled(Form)`
 `;
 const Signup = () => {
   const dispatch = useDispatch();
-  const { signupLoading } = useSelector((state) => state.user);
+  const [action, setAction] = useState(null);
+  const { me, signupLoading, signupDone, signupError } = useSelector((state) => state.user);
+
+  useEffect(() => {
+    if (me && me.id) {
+      message.warn('로그인 한 사용자는 가입하실수 없습니다.').then();
+      Router.push('/').then();
+    }
+  }, [me && me.id]);
+
+  useEffect(() => {
+    if (action) {
+      if (signupDone) {
+        message.success('회원가입에 성공하셨습니다.').then(() => Router.push('/').then());
+      }
+      if (signupError) {
+        message.error(JSON.stringify(signupError, null, 4)).then();
+      }
+      action.setSubmitting(false);
+      setAction(null);
+    }
+  }, [signupDone, signupError]);
 
   return (
     <AppLayout>
@@ -48,14 +70,16 @@ const Signup = () => {
           user_term: false,
         }}
         validationSchema={SignupSchema}
-        onSubmit={(values, action) => {
-          message.info(JSON.stringify(values, null, 4)).then((r) => console.log(r));
+        onSubmit={(values, { setSubmitting, resetForm }) => {
           dispatch({
             type: SIGNUP_REQUEST,
-            values,
+            data: {
+              email: values.user_email,
+              nickname: values.user_nickname,
+              password: values.user_password,
+            },
           });
-          action.setSubmitting(false);
-          action.resetForm();
+          setAction({ setSubmitting, resetForm });
         }}
       >
         <FormWrapper layout="vertical">

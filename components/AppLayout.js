@@ -9,7 +9,7 @@ import { useSelector } from 'react-redux';
 import UserProfile from './UserProfile';
 import LoginForm from './LoginForm';
 
-const { Header, Content, Footer } = Layout;
+const { Header, Content } = Layout;
 const Global = createGlobalStyle`
   .ant-row {
     margin-left: 0 !important;
@@ -35,15 +35,21 @@ const AppLayout = ({ children }) => {
           <Menu.Item key="1">
             <Link href="/"><a>노드버드</a></Link>
           </Menu.Item>
+          {(me && me.id)
+          && (
           <Menu.Item key="2">
             <Link href="/profile"><a>프로필</a></Link>
           </Menu.Item>
+          )}
           <Menu.Item key="3">
             <SearchInput enterButton />
           </Menu.Item>
+          {!(me && me.id)
+          && (
           <Menu.Item key="4">
             <Link href="/signup"><a>회원가입</a></Link>
           </Menu.Item>
+          )}
         </Menu>
       </Header>
       <Content style={{ padding: '0 50px', marginTop: 64 }}>

@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import {
-  Button, message, Tag,
+  Button, message,
 } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { Form, Input } from 'formik-antd';
-import { ErrorMessage, Formik } from 'formik';
+import { Formik } from 'formik';
 import * as Yup from 'yup';
+import PropTypes from 'prop-types';
 import { ADD_COMMENT_REQUEST } from '../reducers/post';
 
 const CommentSchema = Yup.object().shape({
@@ -19,14 +19,21 @@ const CommentForm = ({ post }) => {
   const [action, setAction] = useState(null);
   const dispatch = useDispatch();
   const id = useSelector((state) => state.user.me?.id);
-  const { addCommentLoading, addCommentDone } = useSelector((state) => state.post);
+  const { addCommentLoading, addCommentDone, addCommentError } = useSelector((state) => state.post);
 
   useEffect(() => {
-    if (addCommentDone && action) {
+    if (action) {
+      if (addCommentDone) {
+        message.success('댓글이 등록되었습니다.').then();
+      }
+      if (addCommentError) {
+        message.error(JSON.stringify(addCommentError, null, 4)).then();
+      }
       action.setSubmitting(false);
       action.resetForm();
+      setAction(null);
     }
-  }, [addCommentDone]);
+  }, [addCommentDone, addCommentError]);
 
   return (
     <Formik
@@ -35,7 +42,6 @@ const CommentForm = ({ post }) => {
       }}
       validationSchema={CommentSchema}
       onSubmit={(values, { setSubmitting, resetForm }) => {
-        message.info(JSON.stringify(values, null, 4)).then();
         dispatch({
           type: ADD_COMMENT_REQUEST,
           data: {
@@ -48,16 +54,17 @@ const CommentForm = ({ post }) => {
       }}
     >
       <Form>
-        <Input.TextArea
-          name="content"
-          maxLength={50}
-          autoSize={{ minRows: 2, maxRows: 4 }}
-          placeholder="어떤 신기한 일이 있었나요?"
-        />
+        <Form.Item name="content">
+          <Input.TextArea
+            name="content"
+            maxLength={50}
+            autoSize={{ minRows: 2, maxRows: 4 }}
+            placeholder="어떤 신기한 일이 있었나요?"
+          />
+        </Form.Item>
         <div style={{ position: 'relative', margin: 0 }}>
-          <ErrorMessage component={Tag} name="content" />
           <Button
-            style={{ position: 'absolute', right: 0, top: 0, zIndex: 1 }}
+            style={{ position: 'absolute', right: 0, top: '-20px', zIndex: 1 }}
             type="primary"
             htmlType="submit"
             loading={addCommentLoading}
@@ -72,12 +79,25 @@ const CommentForm = ({ post }) => {
 
 CommentForm.propTypes = {
   post: PropTypes.shape({
-    id: PropTypes.string.isRequired,
-    User: PropTypes.object.isRequired,
+    id: PropTypes.number.isRequired,
+    User: PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      nickname: PropTypes.string.isRequired,
+    }),
     content: PropTypes.string.isRequired,
-    createAt: PropTypes.object,
-    Comments: PropTypes.arrayOf(PropTypes.object),
-    Images: PropTypes.arrayOf(PropTypes.object),
+    createdAt: PropTypes.string.isRequired,
+    Comments: PropTypes.arrayOf(PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      content: PropTypes.string.isRequired,
+    })),
+    Images: PropTypes.arrayOf(PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      src: PropTypes.string.isRequired,
+    })),
+    Likers: PropTypes.arrayOf(PropTypes.shape({
+      id: PropTypes.number.isRequired,
+    })),
   }).isRequired,
 };
+
 export default CommentForm;

@@ -26,14 +26,13 @@ const ImagesZoom = ({ images, onClose }) => {
           >
             {images.map((v) => (
               <ImgWrapper key={v.src}>
-                <img src={v.src} alt={v.src} />
+                <img src={`http://localhost:3065/images/${v.src}`} alt={v.src} />
               </ImgWrapper>
             ))}
           </Slick>
           <Indicator>
             <div>
-              {currentSlide + 1}
-&nbsp;/&nbsp;
+              {currentSlide + 1}&nbsp;/&nbsp;
               {images.length}
             </div>
           </Indicator>
