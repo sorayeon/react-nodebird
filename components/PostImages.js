@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { PlusOutlined } from '@ant-design/icons';
 import ImagesZoom from './imagesZoom';
 
-const PostImages = ({ images }) => {
+const PostImages = ({ id, images }) => {
   const [showImagesZoom, setShowImagesZoom] = useState(false);
 
   const onZoom = useCallback(() => {
@@ -18,39 +18,39 @@ const PostImages = ({ images }) => {
     return (
       <>
         <img
-          src={`http://localhost:3065/images/${images[0].src}`}
+          src={`http://localhost:3065/images/${id}/${images[0].src}`}
           alt={images[0].src}
           role="presentation"
           onClick={onZoom}
         />
-        {showImagesZoom && <ImagesZoom images={images} onClose={onClose} />}
+        {showImagesZoom && <ImagesZoom id={id} images={images} onClose={onClose} />}
       </>
     );
   } if (images.length === 2) {
     return (
       <>
         <img
-          src={`http://localhost:3065/images/${images[0].src}`}
+          src={`http://localhost:3065/images/${id}/${images[0].src}`}
           alt={images[0].src}
           style={{ width: '50%', display: 'inline-block' }}
           role="presentation"
           onClick={onZoom}
         />
         <img
-          src={`http://localhost:3065/images/${images[1].src}`}
+          src={`http://localhost:3065/images/${id}/${images[1].src}`}
           alt={images[1].src}
           style={{ width: '50%', display: 'inline-block' }}
           role="presentation"
           onClick={onZoom}
         />
-        {showImagesZoom && <ImagesZoom images={images} onClose={onClose} />}
+        {showImagesZoom && <ImagesZoom id={id} images={images} onClose={onClose} />}
       </>
     );
   }
   return (
     <>
       <img
-        src={`http://localhost:3065/images/${images[0].src}`}
+        src={`http://localhost:3065/images/${id}/${images[0].src}`}
         alt={images[0].src}
         style={{ width: '50%', display: 'inline-block' }}
         role="presentation"
@@ -69,12 +69,13 @@ const PostImages = ({ images }) => {
         {' '}
         개의 사진 더보기
       </div>
-      {showImagesZoom && <ImagesZoom images={images} onClose={onClose} />}
+      {showImagesZoom && <ImagesZoom id={id} images={images} onClose={onClose} />}
     </>
   );
 };
 
 PostImages.propTypes = {
+  id: PropTypes.number.isRequired,
   images: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.number.isRequired,
     src: PropTypes.string.isRequired,

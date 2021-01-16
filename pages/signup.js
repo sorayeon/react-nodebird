@@ -8,8 +8,11 @@ import { Button, message } from 'antd';
 import styled from 'styled-components';
 import { LockOutlined, MailOutlined, UserOutlined } from '@ant-design/icons';
 import Router from 'next/router';
-import { SIGNUP_REQUEST } from '../reducers/user';
+import axios from 'axios';
+import { END } from 'redux-saga';
+import { LOAD_MY_INFO_REQUEST, SIGNUP_REQUEST } from '../reducers/user';
 import AppLayout from '../components/AppLayout';
+import wrapper from '../store/configureStore';
 
 const SignupSchema = Yup.object().shape({
   user_email: Yup.string()
@@ -146,5 +149,21 @@ const Signup = () => {
     </AppLayout>
   );
 };
+
+// SSR (프론트 서버에서 실행)
+export const getServerSideProps = wrapper.getServerSideProps(async (context) => {
+  const cookie = context.req ? context.req.headers.cookie : '';
+  axios.defaults.headers.Cookie = '';
+  // 쿠키가 브라우저에 있는경우만 넣어서 실행
+  // (주의, 아래 조건이 없다면 다른 사람으로 로그인 될 수도 있음)
+  if (context.req && cookie) {
+    axios.defaults.headers.Cookie = cookie;
+  }
+  context.store.dispatch({
+    type: LOAD_MY_INFO_REQUEST,
+  });
+  context.store.dispatch(END);
+  await context.store.sagaTask.toPromise();
+});
 
 export default Signup;

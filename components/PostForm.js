@@ -4,7 +4,7 @@ import React, {
 import { Form, Input } from 'formik-antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { Formik } from 'formik';
-import { Button, message } from 'antd';
+import { Button, Image, message, Space } from 'antd';
 import * as Yup from 'yup';
 import { UploadOutlined } from '@ant-design/icons';
 import { ADD_POST_REQUEST, REMOVE_IMAGE, UPLOAD_IMAGES_REQUEST } from '../reducers/post';
@@ -23,6 +23,7 @@ const PostForm = () => {
     addPostDone,
     addPostError,
   } = useSelector((state) => state.post);
+  const { id } = useSelector((state) => state.user.me);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -61,7 +62,7 @@ const PostForm = () => {
       type: REMOVE_IMAGE,
       data: index,
     });
-  });
+  }, []);
 
   return (
     <Formik
@@ -112,16 +113,21 @@ const PostForm = () => {
             올리기
           </Button>
         </div>
-        <div>
+        <Space size={8}>
           {imagePaths.map((v, i) => (
-            <div key={v} style={{ display: 'inline-block' }}>
-              <img src={`http://localhost:3065/images/${v}`} alt={v} style={{ width: '200px' }} />
-              <div>
-                <Button onClick={onRemoveImage(i)}>제거</Button>
+            <div style={{ margin: '5px 0 5px 0' }}>
+              <Image
+                width={100}
+                height={100}
+                src={`http://localhost:3065/images/${id}/${v}`}
+                alt={v}
+              />
+              <div style={{ marginTop: '5px' }}>
+                <Button type="danger" onClick={onRemoveImage(i)}>제거</Button>
               </div>
             </div>
           ))}
-        </div>
+        </Space>
       </Form>
     </Formik>
   );

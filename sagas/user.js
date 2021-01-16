@@ -18,12 +18,18 @@ import {
   LOAD_MY_INFO_FAILURE,
   LOAD_MY_INFO_REQUEST,
   LOAD_MY_INFO_SUCCESS,
+  LOAD_USER_FAILURE,
+  LOAD_USER_REQUEST,
+  LOAD_USER_SUCCESS,
   LOGIN_FAILURE,
   LOGIN_REQUEST,
   LOGIN_SUCCESS,
   LOGOUT_FAILURE,
   LOGOUT_REQUEST,
-  LOGOUT_SUCCESS, REMOVE_FOLLOW_FAILURE, REMOVE_FOLLOW_REQUEST, REMOVE_FOLLOW_SUCCESS,
+  LOGOUT_SUCCESS,
+  REMOVE_FOLLOW_FAILURE,
+  REMOVE_FOLLOW_REQUEST,
+  REMOVE_FOLLOW_SUCCESS,
   SIGNUP_FAILURE,
   SIGNUP_REQUEST,
   SIGNUP_SUCCESS,
@@ -45,9 +51,30 @@ function* loadMyInfo() {
       data: result.data,
     });
   } catch (err) {
-    console.log('loadMyInfo api error', err);
+    console.log('loadMyInfo api error', err.response.data);
     yield put({
       type: LOAD_MY_INFO_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+function loadUserAPI(data) {
+  return axios.get(`/user/${data.userId}`);
+}
+function* loadUser(action) {
+  console.log('loadUser call');
+  try {
+    const result = yield call(loadUserAPI, action.data); // call 동기함수를 호출하여 결과값을 받아온다
+    console.log('loadUser api call', result.data);
+    yield put({
+      type: LOAD_USER_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.log('loadUser api error', err.response.data);
+    yield put({
+      type: LOAD_USER_FAILURE,
       error: err.response.data,
     });
   }
@@ -66,7 +93,7 @@ function* login(action) {
       data: result.data,
     });
   } catch (err) {
-    console.log('login api error', err);
+    console.log('login api error', err.response.data);
     yield put({
       type: LOGIN_FAILURE,
       error: err.response.data,
@@ -86,7 +113,7 @@ function* logout() {
       type: LOGOUT_SUCCESS,
     });
   } catch (err) {
-    console.log('logout api error', err);
+    console.log('logout api error', err.response.data);
     yield put({
       type: LOGOUT_FAILURE,
       error: err.response.data,
@@ -107,7 +134,7 @@ function* signup(action) {
       // data: result.data
     });
   } catch (err) {
-    console.log('signup api error', err);
+    console.log('signup api error', err.response.data);
     yield put({
       type: SIGNUP_FAILURE,
       error: err.response.data,
@@ -251,6 +278,10 @@ function* watchLoadMyInfo() {
   yield takeLatest(LOAD_MY_INFO_REQUEST, loadMyInfo);
 }
 
+function* watchLoadUser() {
+  yield takeLatest(LOAD_USER_REQUEST, loadUser);
+}
+
 function* watchLogin() {
   yield takeLatest(LOGIN_REQUEST, login);
 }
@@ -290,6 +321,7 @@ function* watchLoadFollowings() {
 export default function* userSaga() {
   yield all([
     fork(watchLoadMyInfo), // fork 함수를 실행(비동기), call(동기)
+    fork(watchLoadUser),
     fork(watchLogin),
     fork(watchLogout),
     fork(watchSignup),

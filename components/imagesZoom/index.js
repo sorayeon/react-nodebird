@@ -5,7 +5,7 @@ import {
   CloseBtn, Global, Header, ImgWrapper, Indicator, Overlay, SlickWrapper,
 } from './styles';
 
-const ImagesZoom = ({ images, onClose }) => {
+const ImagesZoom = ({ id, images, onClose }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   return (
     <Overlay>
@@ -26,7 +26,7 @@ const ImagesZoom = ({ images, onClose }) => {
           >
             {images.map((v) => (
               <ImgWrapper key={v.src}>
-                <img src={`http://localhost:3065/images/${v.src}`} alt={v.src} />
+                <img src={`http://localhost:3065/images/${id}/${v.src}`} alt={v.src} />
               </ImgWrapper>
             ))}
           </Slick>
@@ -42,8 +42,10 @@ const ImagesZoom = ({ images, onClose }) => {
   );
 };
 ImagesZoom.propTypes = {
+  id: PropTypes.number.isRequired,
   images: PropTypes.arrayOf(PropTypes.shape({
-    src: PropTypes.string,
+    id: PropTypes.number.isRequired,
+    src: PropTypes.string.isRequired,
   })).isRequired,
   onClose: PropTypes.func.isRequired,
 };

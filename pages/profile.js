@@ -1,35 +1,49 @@
-import React, { useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import Head from 'next/head';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import Router from 'next/router';
 import { message } from 'antd';
+import axios from 'axios';
+import { END } from 'redux-saga';
+import useSWR from 'swr';
 import AppLayout from '../components/AppLayout';
 import FollowList from '../components/FollowList';
 import NicknameEditForm from '../components/NicknameEditForm';
-import { LOAD_FOLLOWERS_REQUEST, LOAD_FOLLOWINGS_REQUEST } from '../reducers/user';
+import { LOAD_MY_INFO_REQUEST } from '../reducers/user';
+import wrapper from '../store/configureStore';
+
+const fetcher = (url) => axios.get(url, { withCredentials: true }).then((result) => result.data);
 
 const Profile = () => {
-  const dispatch = useDispatch();
   const { me } = useSelector((state) => state.user);
-
-  useEffect(() => {
-    dispatch({
-      type: LOAD_FOLLOWERS_REQUEST,
-    });
-    dispatch({
-      type: LOAD_FOLLOWINGS_REQUEST,
-    });
-  }, []);
+  const [followersLimit, setFollowersLimit] = useState(3);
+  const [followingsLimit, setFollowingsLimit] = useState(3);
 
   useEffect(() => {
     if (!(me && me.id)) {
-      message.warn('로그인 후 이용해 주시길 바랍니다.');
-      Router.push('/');
+      message.warn('로그인 후 이용해 주시길 바랍니다.').then();
+      Router.push('/').then();
     }
   }, [me && me.id]);
 
+  const { data: followersData, error: followerError } = useSWR((me && me.id) ? `http://localhost:3065/user/followers?limit=${followersLimit}` : null, fetcher);
+  const { data: followingsData, error: followingError } = useSWR((me && me.id) ? `http://localhost:3065/user/followings?limit=${followingsLimit}` : null, fetcher);
+
+  const loadMoreFollowings = useCallback(() => {
+    setFollowingsLimit((prev) => prev + 3);
+  }, []);
+  const loadMoreFollowers = useCallback(() => {
+    setFollowersLimit((prev) => prev + 3);
+  }, []);
+
   if (!me) {
     return null;
+  }
+
+  // 주의 return 이 hooks 보다 위에 있으면 안됨
+  if (followerError || followingError) {
+    console.error(followerError, followingError);
+    return <div>팔로잉/팔로워 로딩 중 에러가 발생합니다.</div>;
   }
 
   return (
@@ -38,10 +52,40 @@ const Profile = () => {
         <title>내 프로필 | NodeBird</title>
       </Head>
       <NicknameEditForm />
-      <FollowList header="팔로잉" data={me.Followings} />
-      <FollowList header="팔로워" data={me.Followers} />
+      {followingsData && (
+        <FollowList
+          header="팔로잉"
+          data={followingsData}
+          onClickMore={loadMoreFollowings}
+          loading={!followingsData && !followingError}
+        />
+      )}
+      {followersData && (
+        <FollowList
+          header="팔로워"
+          data={followersData}
+          onClickMore={loadMoreFollowers}
+          loading={!followersData && !followerError}
+        />
+      )}
     </AppLayout>
   );
 };
+
+// SSR (프론트 서버에서 실행)
+export const getServerSideProps = wrapper.getServerSideProps(async (context) => {
+  const cookie = context.req ? context.req.headers.cookie : '';
+  axios.defaults.headers.Cookie = '';
+  // 쿠키가 브라우저에 있는경우만 넣어서 실행
+  // (주의, 아래 조건이 없다면 다른 사람으로 로그인 될 수도 있음)
+  if (context.req && cookie) {
+    axios.defaults.headers.Cookie = cookie;
+  }
+  context.store.dispatch({
+    type: LOAD_MY_INFO_REQUEST,
+  });
+  context.store.dispatch(END);
+  await context.store.sagaTask.toPromise();
+});
 
 export default Profile;

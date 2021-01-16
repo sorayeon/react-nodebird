@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
@@ -9,9 +9,18 @@ const FollowButton = ({ post }) => {
   const dispatch = useDispatch();
   const { me, followLoading, unfollowLoading } = useSelector((state) => state.user);
   const [buttonType, setButtonType] = useState(['primary', <UserAddOutlined />]);
-  const isFollowing = me?.Followings.find((v) => v.id === post.User.id);
-  const onClickButton = useCallback(() => {
+
+  useEffect(() => {
+    const isFollowing = me?.Followings.find((v) => v.id === post.User.id);
     if (isFollowing) {
+      setButtonType(['', <UserDeleteOutlined />]);
+    } else {
+      setButtonType(['primary', <UserAddOutlined />]);
+    }
+  }, []);
+
+  const onClickButton = useCallback(() => {
+    if (buttonType[0] === '') {
       dispatch({
         type: UNFOLLOW_REQUEST,
         data: {
@@ -28,7 +37,7 @@ const FollowButton = ({ post }) => {
       });
       setButtonType(['', <UserDeleteOutlined />]);
     }
-  }, [isFollowing]);
+  }, [buttonType]);
 
   return (
     <Button
@@ -38,7 +47,7 @@ const FollowButton = ({ post }) => {
       onClick={onClickButton}
       loading={followLoading || unfollowLoading}
     >
-      {isFollowing ? '팔로잉' : '팔로우'}
+      {buttonType[0] === '' ? '팔로잉' : '팔로우'}
     </Button>
   );
 };

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import ProTypes from 'prop-types';
 import Link from 'next/link';
 import {
@@ -6,6 +6,7 @@ import {
 } from 'antd';
 import styled, { createGlobalStyle } from 'styled-components';
 import { useSelector } from 'react-redux';
+import Router from 'next/router';
 import UserProfile from './UserProfile';
 import LoginForm from './LoginForm';
 
@@ -27,6 +28,14 @@ const SearchInput = styled(Input.Search)`
 `;
 const AppLayout = ({ children }) => {
   const { me } = useSelector((state) => state.user);
+  const [searchInput, setSearchInput] = useState('');
+  const onChangeSearchInput = useCallback((e) => {
+    setSearchInput(e.target.value);
+  }, [searchInput]);
+  const onSearch = useCallback(() => {
+    Router.push(`/hashtag/${searchInput}`);
+  }, [searchInput]);
+
   return (
     <Layout className="layout">
       <Global />
@@ -35,29 +44,20 @@ const AppLayout = ({ children }) => {
           <Menu.Item key="1">
             <Link href="/"><a>노드버드</a></Link>
           </Menu.Item>
-          {(me && me.id)
-          && (
           <Menu.Item key="2">
             <Link href="/profile"><a>프로필</a></Link>
           </Menu.Item>
-          )}
           <Menu.Item key="3">
-            <SearchInput enterButton />
+            <SearchInput
+              enterButton
+              value={searchInput}
+              onChange={onChangeSearchInput}
+              onSearch={onSearch}
+            />
           </Menu.Item>
-          {!(me && me.id)
-          && (
-          <Menu.Item key="4">
-            <Link href="/signup"><a>회원가입</a></Link>
-          </Menu.Item>
-          )}
         </Menu>
       </Header>
       <Content style={{ padding: '0 50px', marginTop: 64 }}>
-        <Breadcrumb style={{ margin: '16px 0' }}>
-          <Breadcrumb.Item>Home</Breadcrumb.Item>
-          <Breadcrumb.Item>List</Breadcrumb.Item>
-          <Breadcrumb.Item>App</Breadcrumb.Item>
-        </Breadcrumb>
         <div style={{ minHeight: '400px', padding: '24px', backgroundColor: '#FFF' }}>
           {/* gutter 컬럼 사이의 간격 */}
           <Row gutter={12}>
