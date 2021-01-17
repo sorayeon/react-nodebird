@@ -26,8 +26,8 @@ const Profile = () => {
     }
   }, [me && me.id]);
 
-  const { data: followersData, error: followerError } = useSWR((me && me.id) ? `http://localhost:3065/user/followers?limit=${followersLimit}` : null, fetcher);
-  const { data: followingsData, error: followingError } = useSWR((me && me.id) ? `http://localhost:3065/user/followings?limit=${followingsLimit}` : null, fetcher);
+  const { data: followersData, error: followerError } = useSWR((me && me.id) ? `/user/followers?limit=${followersLimit}` : null, fetcher);
+  const { data: followingsData, error: followingError } = useSWR((me && me.id) ? `/user/followings?limit=${followingsLimit}` : null, fetcher);
 
   const loadMoreFollowings = useCallback(() => {
     setFollowingsLimit((prev) => prev + 3);
