@@ -8,6 +8,7 @@ import { Button, Image, message, Space } from 'antd';
 import * as Yup from 'yup';
 import { UploadOutlined } from '@ant-design/icons';
 import { ADD_POST_REQUEST, REMOVE_IMAGE, UPLOAD_IMAGES_REQUEST } from '../reducers/post';
+import { backendUrl } from '../config/config';
 
 const PostSchema = Yup.object().shape({
   content: Yup.string()
@@ -119,7 +120,7 @@ const PostForm = () => {
               <Image
                 width={100}
                 height={100}
-                src={`http://localhost:3065/images/${id}/${v}`}
+                src={`${backendUrl}/images/${id}/${v}`}
                 alt={v}
               />
               <div style={{ marginTop: '5px' }}>

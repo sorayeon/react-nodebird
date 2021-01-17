@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { PlusOutlined } from '@ant-design/icons';
 import ImagesZoom from './imagesZoom';
+import { backendUrl } from '../config/config';
 
 const PostImages = ({ id, images }) => {
   const [showImagesZoom, setShowImagesZoom] = useState(false);
@@ -18,7 +19,7 @@ const PostImages = ({ id, images }) => {
     return (
       <>
         <img
-          src={`http://localhost:3065/images/${id}/${images[0].src}`}
+          src={`${backendUrl}/images/${id}/${images[0].src}`}
           alt={images[0].src}
           role="presentation"
           onClick={onZoom}
@@ -30,14 +31,14 @@ const PostImages = ({ id, images }) => {
     return (
       <>
         <img
-          src={`http://localhost:3065/images/${id}/${images[0].src}`}
+          src={`${backendUrl}/images/${id}/${images[0].src}`}
           alt={images[0].src}
           style={{ width: '50%', display: 'inline-block' }}
           role="presentation"
           onClick={onZoom}
         />
         <img
-          src={`http://localhost:3065/images/${id}/${images[1].src}`}
+          src={`${backendUrl}/images/${id}/${images[1].src}`}
           alt={images[1].src}
           style={{ width: '50%', display: 'inline-block' }}
           role="presentation"
@@ -50,7 +51,7 @@ const PostImages = ({ id, images }) => {
   return (
     <>
       <img
-        src={`http://localhost:3065/images/${id}/${images[0].src}`}
+        src={`${backendUrl}/images/${id}/${images[0].src}`}
         alt={images[0].src}
         style={{ width: '50%', display: 'inline-block' }}
         role="presentation"
