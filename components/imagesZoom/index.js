@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import Slick from 'react-slick';
-import {
-  CloseBtn, Global, Header, ImgWrapper, Indicator, Overlay, SlickWrapper,
-} from './styles';
-import { backendUrl } from '../../config/config';
+import { CloseBtn, Global, Header, ImgWrapper, Indicator, Overlay, SlickWrapper } from './styles';
+import { imageUrl } from '../../config/config';
 
 const ImagesZoom = ({ id, images, onClose }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -27,7 +25,10 @@ const ImagesZoom = ({ id, images, onClose }) => {
           >
             {images.map((v) => (
               <ImgWrapper key={v.src}>
-                <img src={`${backendUrl}/images/${id}/${v.src}`} alt={v.src} />
+                <img
+                  src={imageUrl ? `${imageUrl}/${id}/${v.src}` : v.src}
+                  alt={v.src}
+                />
               </ImgWrapper>
             ))}
           </Slick>
