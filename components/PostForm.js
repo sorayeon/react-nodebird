@@ -121,7 +121,7 @@ const PostForm = () => {
                 <Image
                   width={100}
                   height={100}
-                  src={imageUrl ? `${imageUrl}/${id}/${v}` : v}
+                  src={imageUrl ? `${imageUrl}/${id}/${v}` : v.replace(/\/thumb\//, '/original/')}
                   alt={v}
                 />
                 <div style={{ marginTop: '5px' }}>
