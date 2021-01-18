@@ -115,21 +115,19 @@ const PostForm = () => {
           </Button>
         </div>
         <Space size={8}>
-          {imagePaths.map((v, i) => {
-            return (
-              <div style={{ margin: '5px 0 5px 0' }}>
-                <Image
-                  width={100}
-                  height={100}
-                  src={imageUrl ? `${imageUrl}/${id}/${v}` : v.replace(/\/thumb\//, '/original/')}
-                  alt={v}
-                />
-                <div style={{ marginTop: '5px' }}>
-                  <Button type="danger" onClick={onRemoveImage(i)}>제거</Button>
-                </div>
+          {imagePaths.map((v, i) => (
+            <div style={{ margin: '5px 0 5px 0' }}>
+              <Image
+                width={100}
+                height={100}
+                src={imageUrl ? `${imageUrl}/${id}/${v}` : v.replace(/\/thumb\//, '/original/')}
+                alt={v}
+              />
+              <div style={{ marginTop: '5px' }}>
+                <Button type="danger" onClick={onRemoveImage(i)}>제거</Button>
               </div>
-            );
-          })}
+            </div>
+          ))}
         </Space>
       </Form>
     </Formik>
