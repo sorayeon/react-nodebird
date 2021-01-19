@@ -6,19 +6,19 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 
 import axios from 'axios';
+import Link from 'next/link';
 import { LOAD_USER_POSTS_REQUEST } from '../../reducers/post';
 import { LOAD_MY_INFO_REQUEST, LOAD_USER_REQUEST } from '../../reducers/user';
 import PostCard from '../../components/PostCard';
 import wrapper from '../../store/configureStore';
 import AppLayout from '../../components/AppLayout';
-import Link from "next/link";
 
 const User = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const { id } = router.query;
   const { mainPosts, hasMorePosts, loadPostsLoading } = useSelector((state) => state.post);
-  const { userInfo } = useSelector((state) => state.user);
+  const { userInfo, me } = useSelector((state) => state.user);
 
   useEffect(() => {
     const onScroll = () => {
@@ -58,9 +58,9 @@ const User = () => {
           <meta property="og:url" content={`https://sorayeon.shop/user/${id}/posts`} />
         </Head>
       )}
-      {userInfo
+      {userInfo && (userInfo.id !== me?.id)
         ? (
-          <div style={{ padding: '20px', background: '#ececec' }}>
+          <div style={{ padding: 15, background: '#ececec', marginBottom: 20 }}>
             <Card
               actions={[
                 <div key="twit">

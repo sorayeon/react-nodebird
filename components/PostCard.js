@@ -1,10 +1,17 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import {
-  Avatar, Button, Card, Divider, List, message, Popconfirm, Popover, Tooltip,
+  Avatar, Button, Card, Divider, message, Popconfirm, Popover, Tooltip,
 } from 'antd';
 import {
-  EllipsisOutlined, HeartOutlined, HeartTwoTone, MessageOutlined, RetweetOutlined,
+  AlertOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  EllipsisOutlined,
+  HeartOutlined,
+  HeartTwoTone,
+  MessageOutlined,
+  RetweetOutlined,
 } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -21,6 +28,10 @@ const PostCard = ({ post }) => {
   const id = useSelector((state) => state.user.me?.id);
   const { removePostLoading, retweetError } = useSelector((state) => state.post);
   const [commentFormOpened, setCommentFormOpened] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const onToggleChangePost = useCallback(() => {
+    setEditMode((prev) => !prev);
+  }, []);
   const onToggleComment = useCallback(() => {
     setCommentFormOpened((prev) => !prev);
   }, []);
@@ -105,7 +116,8 @@ const PostCard = ({ post }) => {
                 (id && post.User.id === id)
                   ? (
                     <>
-                      <Button>수정</Button>
+                      {!post.RetweetId
+                        && <Button onClick={onToggleChangePost}><EditOutlined /> 수정</Button>}
                       <Popconfirm
                         title="Are you sure delete this task?"
                         okText="Yes"
@@ -116,12 +128,12 @@ const PostCard = ({ post }) => {
                           type="danger"
                           loading={removePostLoading}
                         >
-                          삭제
+                          <DeleteOutlined /> 삭제
                         </Button>
                       </Popconfirm>
                     </>
                   )
-                  : <Button>신고</Button>
+                  : <Button><AlertOutlined /> 신고</Button>
               }
               </Button.Group>
           )}
@@ -150,7 +162,13 @@ const PostCard = ({ post }) => {
                   </Tooltip>
                 </div>
               )}
-              description={<PostCardContent postData={post.Retweet.content} />}
+              description={(
+                <PostCardContent
+                  postId={post.RetweetId}
+                  postContent={post.Retweet.content}
+                  onToggleChangePost={onToggleChangePost}
+                />
+              )}
             />
           </Card>
         ) : (
@@ -168,7 +186,14 @@ const PostCard = ({ post }) => {
                 </Tooltip>
               </div>
             )}
-            description={<PostCardContent postData={post.content} />}
+            description={(
+              <PostCardContent
+                postId={post.id}
+                postContent={post.content}
+                editMode={editMode}
+                onToggleChangePost={onToggleChangePost}
+              />
+            )}
           />
         )}
         {commentFormOpened && (
