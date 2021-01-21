@@ -1,4 +1,4 @@
-import produce from 'immer';
+import produce from '../util/produce';
 
 // 기본 state
 export const initialState = {
